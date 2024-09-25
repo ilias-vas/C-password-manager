@@ -18,7 +18,7 @@ This password would then be stored into a file as binary using an [XOR Cipher](h
 ```
 "test": 01110100 01100101 01110011 01110100
    key: 11110011 11110011 11110011 11110011
-	    -----------------------------------
+        -----------------------------------
 Output: 10000111 10010110 10000000 10000111
 ```
 That output would be saved into a "vault" binary file, which would be compressed with [Run-Length Encoding](https://en.m.wikipedia.org/wiki/Run-length_encoding).
