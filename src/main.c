@@ -3,6 +3,7 @@
 
 #include "menu.h"
 #include "defines.h"
+#include "account.h"
 
 void show_accounts_callback(void);
 void add_account_callback(void);
@@ -36,7 +37,12 @@ int main() {
     while (1) {
         menu_print(&main_menu);
         int input;
-        PROMPT_USER("> ", REMOVE_LAST_LINE BOLDRED("Invalid Input. "), get_int_range(&input, 1, 6));
+        PROMPT_USER(
+            "> ",
+            REMOVE_LAST_LINE BOLDRED("Invalid Input. "),
+            get_int_range(&input, 1, main_menu.count)
+        );
+
         (*menu_get_item(&main_menu, input - 1)->callback)();
     }
 
@@ -44,10 +50,40 @@ int main() {
     return 0;
 }
 
-void show_accounts_callback(void) {}
+void show_accounts_callback(void) {
+    printf(PMAN " Accounts\n");
+    /* this is just for testing */
+    category_t* root = category_init("root");
+
+    category_t* important = category_init("important");
+    category_t* gmail = category_init("gmail");
+    category_add_account(gmail, account_init("personal", "test"));
+    category_add_account(gmail, account_init("work", "test"));
+    category_add_account(gmail, account_init("school", "test"));
+
+    category_add_subcategory(important, gmail);
+    category_add_account(important, account_init("bank", "test"));
+    category_add_subcategory(root, important);
+
+    category_t* social = category_init("social");
+    category_add_account(social, account_init("instagram", "test"));
+    category_add_account(social, account_init("reddit", "test"));
+    category_add_account(social, account_init("github", "test"));
+    category_add_subcategory(root, social);
+
+    category_add_account(root, account_init("master password", "test"));    
+
+    category_print(root, 0, 0);
+
+    category_free(root);
+}
+
 void add_account_callback(void) {}
+
 void edit_account_callback(void) {}
+
 void remove_account_callback(void) {}
+
 void show_password_callback(void) {}
 
 void exit_callback(void) {

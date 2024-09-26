@@ -17,17 +17,18 @@ pman is a simple terminal password manager for managing different accounts.
 
 ```
 [pman] Accounts
-        ├─important
-        │  ├─gmail
-        │  │  ├─personal
-        │  │  ├─work
-        │  │  └─school
-        │  └─bank
-        ├─social
-        │  ├─instagram
-        │  ├─reddit
-        │  └─github
-        └─master password
+root
+  ├─important
+  │  ├─gmail
+  │  │  ├─personal
+  │  │  ├─work
+  │  │  └─school
+  │  └─bank
+  ├─social
+  │  ├─instagram
+  │  ├─reddit
+  │  └─github
+  └─master password
 ```
 
 ```
@@ -58,5 +59,5 @@ pman is a simple terminal password manager for managing different accounts.
 - [ ] Saving password to file with account name
 - [ ] Removing password with account name
 - [ ] Opening & Displaying password from file from account name
-- [ ] Displaying all account names
+- [x] Displaying all account names
 - [ ] XOR Encryption / Decryption
