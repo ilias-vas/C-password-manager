@@ -4,10 +4,15 @@
 #include <string.h>
 #include <stdio.h>
 
-menu_item_t* new_menu_item(const char* name) {
+#include "escapes.h"
+
+#define BUFFER_SIZE 64
+
+menu_item_t* new_menu_item(const char* name, void (*callback) (void)) {
     menu_item_t* ret = (menu_item_t*) malloc(sizeof(menu_item_t));
     if (ret) {
         strcpy(ret->name, name);
+        ret->callback = callback;
         ret->prev = NULL;
         ret->next = NULL;
     }
@@ -15,7 +20,7 @@ menu_item_t* new_menu_item(const char* name) {
 }
 
 menu_item_t* get_menu_item(menu_t* menu, int i) {
-    if (i >= menu->count) return NULL;
+    if (i < 0 || i >= menu->count) return NULL;
     
     menu_item_t* iter = menu->first;
     while(i-- && iter) iter = iter->next;
@@ -25,10 +30,11 @@ menu_item_t* get_menu_item(menu_t* menu, int i) {
 
 void print_menu(menu_t* menu) {
     menu_item_t* iter = menu->first;
+    printf("%s\n", menu->title);
     int i;
     for (i = 0; i < menu->count; ++i, iter = iter->next) {
         if (!iter) break;
-        printf("%d. %s\n", i + 1, iter->name);
+        printf( CYAN("[%d] ") "%s\n", i + 1, iter->name);
     }
 }
 
@@ -45,6 +51,28 @@ void push_menu_item(menu_t* menu, menu_item_t* item) {
     }
 }
 
+int get_string(char* data) {
+    char buffer[BUFFER_SIZE];
+    fgets(buffer, BUFFER_SIZE, stdin);
+
+    /* we dont read directly into data as it would include the new line*/
+    sscanf(buffer, "%s", data);
+    return 1;
+}
+
+int get_int(int* data) {
+    char buffer[BUFFER_SIZE];
+    fgets(buffer, BUFFER_SIZE, stdin);
+
+    if (sscanf(buffer, "%d", data) != 1) return 0;
+    return 1;
+}
+
+int get_int_range(int* data, int min, int max) {
+    if (!get_int(data)) return 0;
+    return (*data >= min && *data <= max);
+}
+
 void free_menu_items(menu_t* menu) {
     if (menu->count == 0) return;
 
@@ -54,7 +82,7 @@ void free_menu_items(menu_t* menu) {
         iter = iter->next;
         free(temp);
     }
-    
+
     menu->first = NULL;
     menu->last = NULL;
     menu->count = 0;
