@@ -36,11 +36,11 @@ void print_tab(int level, int is_last) {
     --level;
 
     const char* delim = (is_last) ? " " : "│";
-    while(level--) printf("%s%*s", delim, TAB_WIDTH, "");
+    while(level--) printf(CYAN("%s") "%*s", delim, TAB_WIDTH, "");
 }
 
 void category_print(category_t* category, int level, int is_last) {
-    printf("%s\n", category->name);
+    printf(BOLDMAGENTA("%s\n"), category->name);
 
     int i;
     for (i = 0; i < category->sub_categories->count; i++) {
@@ -50,7 +50,7 @@ void category_print(category_t* category, int level, int is_last) {
         const char* delim = is_last ? "└─" : "├─";
 
         print_tab(level + 1, is_last);
-        printf("%s", delim);
+        printf(CYAN("%s"), delim);
         category_print((category_t*) list_get(category->sub_categories, i), level + 1, is_last);
     }
    
@@ -59,7 +59,7 @@ void category_print(category_t* category, int level, int is_last) {
         const char* delim = (i == category->accounts->count - 1) ? "└─" : "├─";
 
         print_tab(level + 1, is_last);
-        printf("%s%s\n", delim, account->name);
+        printf(CYAN("%s") "%s\n", delim, account->name);
     }
 }
 

@@ -26,7 +26,7 @@ int main() {
     /* load stored information about the user */
 
     menu_t main_menu = {0};
-    main_menu.title = PMAN " Welcome";
+    main_menu.title = PMAN "Welcome";
     menu_push_item(&main_menu, menu_item_init("Show Accounts", &show_accounts_callback));
     menu_push_item(&main_menu, menu_item_init("Add Account", &add_account_callback));
     menu_push_item(&main_menu, menu_item_init("Edit Account", &edit_account_callback));
@@ -51,7 +51,7 @@ int main() {
 }
 
 void show_accounts_callback(void) {
-    printf(PMAN " Accounts\n");
+    printf(PMAN "Accounts\n");
     /* this is just for testing */
     category_t* root = category_init("root");
 
@@ -65,13 +65,14 @@ void show_accounts_callback(void) {
     category_add_account(important, account_init("bank", "test"));
     category_add_subcategory(root, important);
 
+    category_t* test = category_init("test");
+    category_add_subcategory(root, test);
+
     category_t* social = category_init("social");
     category_add_account(social, account_init("instagram", "test"));
     category_add_account(social, account_init("reddit", "test"));
     category_add_account(social, account_init("github", "test"));
     category_add_subcategory(root, social);
-
-    category_add_account(root, account_init("master password", "test"));    
 
     category_print(root, 0, 0);
 

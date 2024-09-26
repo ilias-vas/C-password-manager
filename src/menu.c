@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "escapes.h"
+#include "defines.h"
 
 #define BUFFER_SIZE 64
 
@@ -34,7 +34,7 @@ void menu_print(menu_t* menu) {
     int i;
     for (i = 0; i < menu->count; ++i, iter = iter->next) {
         if (!iter) break;
-        printf( CYAN("[%d] ") "%s\n", i + 1, iter->name);
+        printf(CYAN("[%d] ") RESET "%s\n", i + 1, iter->name);
     }
 }
 
