@@ -18,7 +18,7 @@ void extend_list(list_t* list) {
     list->data = data;
 }
 
-list_t* make_list(void) {
+list_t* list_init(void) {
     list_t* ret = (list_t*) malloc(sizeof(list_t));
     ret->count = 0;
     ret->capacity = 1;

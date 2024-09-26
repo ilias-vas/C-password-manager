@@ -1,7 +1,7 @@
 #ifndef MENU_H
 #define MENU_H
 
-#define MAX_NAME_SIZE 64
+#include "defines.h"
 
 #define PROMPT_USER(prompt, error, fn) do {     \
     int result = 1;                             \
@@ -25,16 +25,15 @@ typedef struct {
     int count;
 } menu_t;
 
-menu_item_t* new_menu_item(const char*, void(*)(void));
-menu_item_t* get_menu_item(menu_t*, int);
+menu_item_t* menu_item_init(const char*, void(*)(void));
 
-void print_menu(menu_t*);
-void push_menu_item(menu_t*, menu_item_t*);
+menu_item_t* menu_get_item(menu_t*, int);
+void menu_print(menu_t*);
+void menu_push_item(menu_t*, menu_item_t*);
+void menu_free(menu_t*);
 
 int get_string(char*);
 int get_int(int*);
 int get_int_range(int*, int, int);
-
-void free_menu_items(menu_t*);
 
 #endif
