@@ -2,9 +2,7 @@
 #include <stdlib.h>
 
 #include "menu.h"
-#include "escapes.h"
-
-#define PMAN CYAN("[pman]")
+#include "defines.h"
 
 void show_accounts_callback(void);
 void add_account_callback(void);
@@ -28,21 +26,21 @@ int main() {
 
     menu_t main_menu = {0};
     main_menu.title = PMAN " Welcome";
-    push_menu_item(&main_menu, new_menu_item("Show Accounts", &show_accounts_callback));
-    push_menu_item(&main_menu, new_menu_item("Add Account", &add_account_callback));
-    push_menu_item(&main_menu, new_menu_item("Edit Account", &edit_account_callback));
-    push_menu_item(&main_menu, new_menu_item("Remove Account", &remove_account_callback));
-    push_menu_item(&main_menu, new_menu_item("Show Password", &show_password_callback));
-    push_menu_item(&main_menu, new_menu_item("Exit", &exit_callback));
+    menu_push_item(&main_menu, menu_item_init("Show Accounts", &show_accounts_callback));
+    menu_push_item(&main_menu, menu_item_init("Add Account", &add_account_callback));
+    menu_push_item(&main_menu, menu_item_init("Edit Account", &edit_account_callback));
+    menu_push_item(&main_menu, menu_item_init("Remove Account", &remove_account_callback));
+    menu_push_item(&main_menu, menu_item_init("Show Password", &show_password_callback));
+    menu_push_item(&main_menu, menu_item_init("Exit", &exit_callback));
     
     while (1) {
-        print_menu(&main_menu);
+        menu_print(&main_menu);
         int input;
         PROMPT_USER("> ", REMOVE_LAST_LINE BOLDRED("Invalid Input. "), get_int_range(&input, 1, 6));
-        (*get_menu_item(&main_menu, input - 1)->callback)();
+        (*menu_get_item(&main_menu, input - 1)->callback)();
     }
 
-    free_menu_items(&main_menu);
+    menu_free(&main_menu);
     return 0;
 }
 

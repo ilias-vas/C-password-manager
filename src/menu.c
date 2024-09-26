@@ -8,7 +8,7 @@
 
 #define BUFFER_SIZE 64
 
-menu_item_t* new_menu_item(const char* name, void (*callback) (void)) {
+menu_item_t* menu_item_init(const char* name, void (*callback) (void)) {
     menu_item_t* ret = (menu_item_t*) malloc(sizeof(menu_item_t));
     if (ret) {
         strcpy(ret->name, name);
@@ -19,7 +19,7 @@ menu_item_t* new_menu_item(const char* name, void (*callback) (void)) {
     return ret;
 }
 
-menu_item_t* get_menu_item(menu_t* menu, int i) {
+menu_item_t* menu_get_item(menu_t* menu, int i) {
     if (i < 0 || i >= menu->count) return NULL;
     
     menu_item_t* iter = menu->first;
@@ -28,7 +28,7 @@ menu_item_t* get_menu_item(menu_t* menu, int i) {
     return iter;
 }
 
-void print_menu(menu_t* menu) {
+void menu_print(menu_t* menu) {
     menu_item_t* iter = menu->first;
     printf("%s\n", menu->title);
     int i;
@@ -38,7 +38,7 @@ void print_menu(menu_t* menu) {
     }
 }
 
-void push_menu_item(menu_t* menu, menu_item_t* item) {
+void menu_push_item(menu_t* menu, menu_item_t* item) {
     if (menu->first == NULL) {
         menu->first = item;
         menu->last = item;
@@ -49,6 +49,21 @@ void push_menu_item(menu_t* menu, menu_item_t* item) {
         menu->last = item;
         ++menu->count;
     }
+}
+
+void menu_free(menu_t* menu) {
+    if (menu->count == 0) return;
+
+    menu_item_t* iter = menu->first;
+    while(iter) {
+        menu_item_t* temp = iter;
+        iter = iter->next;
+        free(temp);
+    }
+
+    menu->first = NULL;
+    menu->last = NULL;
+    menu->count = 0;
 }
 
 int get_string(char* data) {
@@ -71,19 +86,4 @@ int get_int(int* data) {
 int get_int_range(int* data, int min, int max) {
     if (!get_int(data)) return 0;
     return (*data >= min && *data <= max);
-}
-
-void free_menu_items(menu_t* menu) {
-    if (menu->count == 0) return;
-
-    menu_item_t* iter = menu->first;
-    while(iter) {
-        menu_item_t* temp = iter;
-        iter = iter->next;
-        free(temp);
-    }
-
-    menu->first = NULL;
-    menu->last = NULL;
-    menu->count = 0;
 }

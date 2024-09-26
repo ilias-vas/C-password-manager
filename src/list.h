@@ -6,7 +6,7 @@ typedef struct {
     int count, capacity;
 } list_t;
 
-list_t* make_list(void);
+list_t* list_init(void);
 void list_append(list_t*, void*);
 void list_remove(list_t*, int);
 void* list_get(list_t*, int);
