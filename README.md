@@ -1,4 +1,4 @@
-# C Password Manager
+# pman
 
 The basic idea of the program is that its a CLI password manager where the user can save a new password by first entering the account name of that password, then the password itself. Example:
 ```C
