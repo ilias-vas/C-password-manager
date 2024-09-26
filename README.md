@@ -51,6 +51,7 @@ pman is a simple terminal password manager for managing different accounts.
 [pman] Enter Account name.
 > bank
 [pman] sUp3r5tr#nk!123
+```
 
 ## Feature List
 - [ ] Saving password to file with account name
