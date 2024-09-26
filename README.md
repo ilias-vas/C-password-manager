@@ -1,3 +1,4 @@
+![pman logo](./logo/pman-logo.png)
 # P(assword) MAN(ager)
 
 pman is a simple terminal password manager for managing different accounts.
