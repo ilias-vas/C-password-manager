@@ -1,18 +1,58 @@
-# pman
+# P(assword) MAN(ager)
 
-The basic idea of the program is that its a CLI password manager where the user can save a new password by first entering the account name of that password, then the password itself. Example:
+pman is a simple terminal password manager for managing different accounts.
+
 ```C
----------- [Password Manager Menu] ----------
-1. Add password
-2. Remove password
-3. Display password (requires account name)
-4. Display all account names
----------------------------------------------
-Enter your choice> 1
-Enter account name: google
-Enter password: test
-Password Saved!
+[pman] Enter password.
+> *****
+[pman] Welcome (name)
+[1] Show Accounts
+[2] Add Account
+[3] Edit Account
+[4] Remove Account
+[5] Show Password
+[6] Exit
 ```
+
+```
+[pman] Accounts
+        ├─important
+        │  ├─gmail
+        │  │  ├─personal
+        │  │  ├─work
+        │  │  └─school
+        │  └─bank
+        ├─social
+        │  ├─instagram
+        │  ├─reddit
+        │  └─github
+        └─master password
+```
+
+```
+[pman] Edit Account
+[pman] Enter Account name.
+> github
+[pman] Enter New Password.
+> *****
+```
+
+```
+[pman] Remove Account
+[pman] Enter Account name.
+> reddit
+[pman] Remove account reddit? (Y\n)
+> Y
+[pman] Account reddit removed.
+```
+
+```
+[pman] Show Password
+[pman] Enter Account name.
+> bank
+[pman] sUp3r5tr#nk!123
+```
+
 This password would then be stored into a file as binary using an [XOR Cipher](https://en.wikipedia.org/wiki/XOR_cipher). So if the user in the above example entered `test`, this is how the cipher would work:
 
 ```
