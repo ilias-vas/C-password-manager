@@ -1,4 +1,5 @@
 #include "account.h"
+#include "list.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -21,8 +22,55 @@ category_t* category_init(const char* name) {
     return ret;
 }
 
+void clearInputBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) {};
+}
+
 void category_add_account(category_t* category, account_t* account) {
     list_append(category->accounts, account);
+}
+
+void category_remove_account(category_t* category, char *name) {
+    clearInputBuffer();
+    int i, j;
+    char choice;
+    int account_found = 0; 
+    
+    /* loop through sub categories */
+    for (i = 0; i < category->sub_categories->count; i++) {
+        category_t* currCat = (category_t*) list_get(category->sub_categories, i);
+        
+        /* loop through every account in subcategories */
+        for (j = 0; j < currCat->accounts->count; j++) {
+            account_t* currAcc = (account_t*) list_get(currCat->accounts, j);
+            
+            /* if it's a match, remove */
+            if (strcmp(currAcc->name, name) == 0) {
+                printf(PMAN "Remove account %s? (y/n)\n", currAcc->name);
+                printf("> ");
+                
+                scanf(" %c", &choice); 
+                if (choice == 'y') {
+                    list_remove(currCat->accounts, j); 
+                    printf(PMAN "Account %s removed.\n", currAcc->name);
+                    account_found = 1; 
+                    clearInputBuffer();
+                    break; 
+                } else {
+                    printf(PMAN "Account %s not removed\n", currAcc->name);
+                    account_found = 1; 
+                    clearInputBuffer();
+                }
+            }
+        }
+        
+        if (account_found) break; 
+    }
+    
+    if (!account_found) {
+        printf("Account not found.\n");
+    }
 }
 
 void category_add_subcategory(category_t* category, category_t* subcategory) {
@@ -76,3 +124,4 @@ void category_free(category_t* category) {
     }
     free(category);
 }
+

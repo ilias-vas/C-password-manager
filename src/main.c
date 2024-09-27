@@ -83,7 +83,25 @@ void add_account_callback(void) {}
 
 void edit_account_callback(void) {}
 
-void remove_account_callback(void) {}
+void remove_account_callback(void) {
+    /* categories for testing */
+    category_t* root = category_init("root");
+
+    category_t* important = category_init("important");
+
+    category_add_account(important, account_init("bank", "test"));
+    category_add_subcategory(root, important);
+
+    char accName[MAX_NAME_SIZE];
+    printf(PMAN "Remove Acount\n");
+    printf(PMAN "Enter Account name.\n");
+    printf("> ");
+    scanf("%s", accName);
+    
+    category_remove_account(root, accName);
+
+    category_free(root);
+}
 
 void show_password_callback(void) {}
 
