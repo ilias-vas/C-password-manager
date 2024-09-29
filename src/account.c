@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+
 #include <string.h>
 
 #define TAB_WIDTH 2
@@ -35,39 +36,39 @@ void category_remove_account(category_t* category, char *name) {
     clearInputBuffer();
     int i, j;
     char choice;
-    int account_found = 0; 
-    
+    int account_found = 0;
+
     /* loop through sub categories */
     for (i = 0; i < category->sub_categories->count; i++) {
         category_t* currCat = (category_t*) list_get(category->sub_categories, i);
-        
+
         /* loop through every account in subcategories */
         for (j = 0; j < currCat->accounts->count; j++) {
             account_t* currAcc = (account_t*) list_get(currCat->accounts, j);
-            
+
             /* if it's a match, remove */
             if (strcmp(currAcc->name, name) == 0) {
                 printf(PMAN "Remove account %s? (y/n)\n", currAcc->name);
                 printf("> ");
-                
-                scanf(" %c", &choice); 
+
+                scanf(" %c", &choice);
                 if (choice == 'y') {
-                    list_remove(currCat->accounts, j); 
+                    list_remove(currCat->accounts, j);
                     printf(PMAN "Account %s removed.\n", currAcc->name);
-                    account_found = 1; 
+                    account_found = 1;
                     clearInputBuffer();
-                    break; 
+                    break;
                 } else {
                     printf(PMAN "Account %s not removed\n", currAcc->name);
-                    account_found = 1; 
+                    account_found = 1;
                     clearInputBuffer();
                 }
             }
         }
-        
-        if (account_found) break; 
+
+        if (account_found) break;
     }
-    
+
     if (!account_found) {
         printf("Account not found.\n");
     }
@@ -79,35 +80,35 @@ void category_add_subcategory(category_t* category, category_t* subcategory) {
 
 void print_tab(int level, int is_last) {
     if (level == 0) return;
-    
+
     printf("%*s", TAB_WIDTH, "");
     --level;
 
     const char* delim = (is_last) ? " " : "│";
-    while(level--) printf(CYAN("%s") "%*s", delim, TAB_WIDTH, "");
+    while(level--) printf(PRIMARY_COLOUR("%s") "%*s", delim, TAB_WIDTH, "");
 }
 
 void category_print(category_t* category, int level, int is_last) {
-    printf(BOLDMAGENTA("%s\n"), category->name);
+    printf(BOLD_SECONDARY_COLOUR("%s\n"), category->name);
 
     int i;
     for (i = 0; i < category->sub_categories->count; i++) {
-        int is_last = 
-            i == category->sub_categories->count - 1 && 
+        int is_last =
+            i == category->sub_categories->count - 1 &&
             category->accounts->count == 0;
         const char* delim = is_last ? "└─" : "├─";
 
         print_tab(level + 1, is_last);
-        printf(CYAN("%s"), delim);
+        printf(PRIMARY_COLOUR("%s"), delim);
         category_print((category_t*) list_get(category->sub_categories, i), level + 1, is_last);
     }
-   
+
     for (i = 0; i < category->accounts->count; i++) {
         account_t* account = (account_t*) list_get(category->accounts, i);
         const char* delim = (i == category->accounts->count - 1) ? "└─" : "├─";
 
         print_tab(level + 1, is_last);
-        printf(CYAN("%s") "%s\n", delim, account->name);
+        printf(PRIMARY_COLOUR("%s") "%s\n", delim, account->name);
     }
 }
 
@@ -124,4 +125,3 @@ void category_free(category_t* category) {
     }
     free(category);
 }
-
