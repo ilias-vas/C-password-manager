@@ -8,7 +8,7 @@
 
 #define BUFFER_SIZE 64
 
-menu_item_t* menu_item_init(const char* name, void (*callback) (void)) {
+menu_item_t* menu_item_init(const char* name, void (*callback) (application_context_t*)) {
     menu_item_t* ret = (menu_item_t*) malloc(sizeof(menu_item_t));
     if (ret) {
         strcpy(ret->name, name);
@@ -21,7 +21,7 @@ menu_item_t* menu_item_init(const char* name, void (*callback) (void)) {
 
 menu_item_t* menu_get_item(menu_t* menu, int i) {
     if (i < 0 || i >= menu->count) return NULL;
-    
+
     menu_item_t* iter = menu->first;
     while(i-- && iter) iter = iter->next;
 

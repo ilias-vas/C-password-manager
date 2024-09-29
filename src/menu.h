@@ -2,6 +2,7 @@
 #define MENU_H
 
 #include "defines.h"
+#include "application.h"
 
 #define PROMPT_USER(prompt, error, fn) do {     \
     int result = 1;                             \
@@ -15,17 +16,17 @@ typedef struct menu_item {
     char name[MAX_NAME_SIZE];
     struct menu_item* prev;
     struct menu_item* next;
-    void (*callback)(void);
+    void (*callback)(application_context_t*);
 } menu_item_t;
 
 typedef struct {
-    const char* title;
+    char title[MAX_NAME_SIZE * 2];
     menu_item_t* first;
     menu_item_t* last;
     int count;
 } menu_t;
 
-menu_item_t* menu_item_init(const char*, void(*)(void));
+menu_item_t* menu_item_init(const char*, void(*)(application_context_t*));
 
 menu_item_t* menu_get_item(menu_t*, int);
 void menu_print(menu_t*);

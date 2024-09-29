@@ -1,39 +1,48 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "menu.h"
-#include "defines.h"
 #include "account.h"
+#include "application.h"
+#include "defines.h"
+#include "menu.h"
+#include "vault.h"
 
-void show_accounts_callback(void);
-void add_account_callback(void);
-void edit_account_callback(void);
-void remove_account_callback(void);
-void show_password_callback(void);
-void exit_callback(void);
+void show_accounts_callback(application_context_t*);
+void add_account_callback(application_context_t*);
+void edit_account_callback(application_context_t*);
+void remove_account_callback(application_context_t*);
+void show_password_callback(application_context_t*);
+void exit_callback(application_context_t*);
 
-int main() {
-    
-    /* if there is no stored database and create a new user */
+int main(void) {
 
-    /* 
-    char* password;
-    PROMPT_USER(PMAN "Enter password.\n>", "", get_string(password));
-    */
-    
-    /* check if the password is correct here */
+    vault_t vault = {0};
+    vault.file_path = "vault";
 
-    /* load stored information about the user */
+    if (vault_exists(&vault)) {
+        printf(PMAN "Enter password.\n");
+        do {
+            PROMPT_USER("> ", REMOVE_LAST_LINE BOLDRED("Incorrect password. "), get_string(vault.password));
+        } while(!vault_load(&vault));
+    } else {
+        printf(PMAN "No vault found, creating new vault.\n");
+        printf(PMAN "Welcome. Please enter a new master password.\n");
+
+        PROMPT_USER("> ", "", get_string(vault.password));
+    }
+
+    application_context_t app_context = {0};
+    app_context.vault = &vault;
 
     menu_t main_menu = {0};
-    main_menu.title = PMAN "Welcome";
+    sscanf(main_menu.title, PMAN "Welcome %s", vault.username);
     menu_push_item(&main_menu, menu_item_init("Show Accounts", &show_accounts_callback));
     menu_push_item(&main_menu, menu_item_init("Add Account", &add_account_callback));
     menu_push_item(&main_menu, menu_item_init("Edit Account", &edit_account_callback));
     menu_push_item(&main_menu, menu_item_init("Remove Account", &remove_account_callback));
     menu_push_item(&main_menu, menu_item_init("Show Password", &show_password_callback));
-    menu_push_item(&main_menu, menu_item_init("Exit", &exit_callback));
-    
+    menu_push_item(&main_menu, menu_item_init("Save and Exit", &exit_callback));
+
     while (1) {
         menu_print(&main_menu);
         int input;
@@ -43,68 +52,35 @@ int main() {
             get_int_range(&input, 1, main_menu.count)
         );
 
-        (*menu_get_item(&main_menu, input - 1)->callback)();
+        (*menu_get_item(&main_menu, input - 1)->callback)(&app_context);
     }
 
     menu_free(&main_menu);
     return 0;
 }
 
-void show_accounts_callback(void) {
+void show_accounts_callback(application_context_t* context) {
     printf(PMAN "Accounts\n");
-    /* this is just for testing */
-    category_t* root = category_init("root");
-
-    category_t* important = category_init("important");
-    category_t* gmail = category_init("gmail");
-    category_add_account(gmail, account_init("personal", "test"));
-    category_add_account(gmail, account_init("work", "test"));
-    category_add_account(gmail, account_init("school", "test"));
-
-    category_add_subcategory(important, gmail);
-    category_add_account(important, account_init("bank", "test"));
-    category_add_subcategory(root, important);
-
-    category_t* test = category_init("test");
-    category_add_subcategory(root, test);
-
-    category_t* social = category_init("social");
-    category_add_account(social, account_init("instagram", "test"));
-    category_add_account(social, account_init("reddit", "test"));
-    category_add_account(social, account_init("github", "test"));
-    category_add_subcategory(root, social);
-
-    category_print(root, 0, 0);
-
-    category_free(root);
+    category_print(context->vault->root, 0, 0);
 }
 
-void add_account_callback(void) {}
+void add_account_callback(application_context_t* context) {}
 
-void edit_account_callback(void) {}
+void edit_account_callback(application_context_t* context) {}
 
-void remove_account_callback(void) {
-    /* categories for testing */
-    category_t* root = category_init("root");
-
-    category_t* important = category_init("important");
-
-    category_add_account(important, account_init("bank", "test"));
-    category_add_subcategory(root, important);
-
+void remove_account_callback(application_context_t* context) {
     char accName[MAX_NAME_SIZE];
     printf(PMAN "Remove Acount\n");
     printf(PMAN "Enter Account name.\n");
     printf("> ");
     scanf("%s", accName);
-    
-    category_remove_account(root, accName);
 
-    category_free(root);
+    category_remove_account(context->vault->root, accName);
 }
 
-void show_password_callback(void) {}
+void show_password_callback(application_context_t* context) {}
 
-void exit_callback(void) {
+void exit_callback(application_context_t* context) {
+    vault_save(context->vault);
     exit(0);
 }

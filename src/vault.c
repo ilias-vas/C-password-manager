@@ -14,7 +14,7 @@ int vault_exists(vault_t* vault) {
     return 1;
 }
 
-int vault_load(vault_t* vault, const char* password) {
+int vault_load(vault_t* vault) {
     stream_t stream = stream_init();
     if (!stream_read_from_file(&stream, vault->file_path)) {
         stream_free(&stream);
@@ -34,7 +34,7 @@ int vault_load(vault_t* vault, const char* password) {
     return 1;
 }
 
-int vault_save(vault_t* vault, const char* password) {
+int vault_save(vault_t* vault) {
     stream_t stream = stream_init();
     stream_push_string(&stream, MAGIC_WORD);
     stream_push_string(&stream, vault->username);
