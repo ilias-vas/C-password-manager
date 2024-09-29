@@ -35,4 +35,6 @@
 
 #define PMAN PRIMARY_COLOUR("[pman] ")
 
+typedef __SIZE_TYPE__ size_t;
+
 #endif
