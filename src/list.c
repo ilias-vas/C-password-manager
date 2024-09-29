@@ -3,19 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-void extend_list(list_t* list) {
-    int capacity;
-    if (list->capacity == 0) capacity = 1;
-    else capacity = list->capacity << 2;
-    void** data = (void**) malloc(sizeof(void*) * capacity);
-    
-    if (list->data) {
-        memcpy(data, list->data, sizeof(void*) * list->capacity);
-        free(list->data);
-    }
-
-    list->capacity = capacity;
-    list->data = data;
+void list_extend(list_t* list) {
+    if (list->capacity < 1) list->capacity = 1;
+    list->capacity *= 2;
+    if (!list->data) list->data = (void**) malloc(sizeof(void*) * list->capacity);
+    else list->data = (void**) realloc(list->data, sizeof(void*) * list->capacity);
 }
 
 list_t* list_init(void) {
@@ -26,15 +18,14 @@ list_t* list_init(void) {
     return ret;
 }
 
-
 void list_append(list_t* list, void* data) {
-    if (list->count == list->capacity) extend_list(list);
+    if (list->count == list->capacity) list_extend(list);
     list->data[list->count++] = data;
 }
 
 void list_remove(list_t* list, int i) {
     if (i < 0 || i >= list->count) return;
-    if (list->count > 1) 
+    if (list->count > 1)
         memmove(list->data[i], list->data[i + 1], list->count - i);
     --list->count;
 }
@@ -50,6 +41,5 @@ void list_empty(list_t* list) {
 
 void list_free(list_t* list) {
     free(list->data);
-    list->capacity = 0;
-    list->count = 0;
+    free(list);
 }
