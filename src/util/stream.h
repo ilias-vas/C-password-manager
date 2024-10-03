@@ -2,7 +2,7 @@
 #define STREAM_H
 
 #include "defines.h"
-#include "account.h"
+#include "../account.h"
 
 typedef struct {
    char* data;

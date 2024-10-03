@@ -1,9 +1,7 @@
 #include "account.h"
-#include "list.h"
 
 #include <stdlib.h>
 #include <stdio.h>
-
 #include <string.h>
 
 #define TAB_WIDTH 2

@@ -4,8 +4,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "defines.h"
-
 #define BUFFER_SIZE 64
 
 menu_item_t* menu_item_init(const char* name, void (*callback) (application_context_t*)) {

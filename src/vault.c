@@ -1,5 +1,5 @@
 #include "vault.h"
-#include "stream.h"
+#include "util/stream.h"
 
 #include <stdio.h>
 #include <string.h>

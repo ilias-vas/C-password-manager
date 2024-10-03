@@ -1,7 +1,7 @@
 #ifndef VAULT_H
 #define VAULT_H
 
-#include "defines.h"
+#include "util/defines.h"
 #include "account.h"
 
 typedef struct {

@@ -3,7 +3,7 @@
 
 #include "account.h"
 #include "application.h"
-#include "defines.h"
+#include "util/defines.h"
 #include "menu.h"
 #include "vault.h"
 

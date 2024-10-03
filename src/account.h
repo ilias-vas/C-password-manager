@@ -1,8 +1,8 @@
 #ifndef ACCOUNT_H
 #define ACCOUNT_H
 
-#include "list.h"
-#include "defines.h"
+#include "util/list.h"
+#include "util/defines.h"
 
 typedef struct {
     char name[MAX_NAME_SIZE];

@@ -1,7 +1,7 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include "defines.h"
+#include "util/defines.h"
 #include "application.h"
 
 #define PROMPT_USER(prompt, error, fn) do {     \
