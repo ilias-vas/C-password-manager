@@ -64,24 +64,24 @@ void menu_free(menu_t* menu) {
     menu->count = 0;
 }
 
-int get_string(char* data) {
+int get_string(char* result) {
     char buffer[BUFFER_SIZE];
     fgets(buffer, BUFFER_SIZE, stdin);
 
     /* we dont read directly into data as it would include the new line*/
-    sscanf(buffer, "%s", data);
+    sscanf(buffer, "%s", result);
     return 1;
 }
 
-int get_int(int* data) {
+int get_int(int* result) {
     char buffer[BUFFER_SIZE];
     fgets(buffer, BUFFER_SIZE, stdin);
 
-    if (sscanf(buffer, "%d", data) != 1) return 0;
+    if (sscanf(buffer, "%d", result) != 1) return 0;
     return 1;
 }
 
-int get_int_range(int* data, int min, int max) {
-    if (!get_int(data)) return 0;
-    return (*data >= min && *data <= max);
+int get_int_range(int* result, int min, int max) {
+    if (!get_int(result)) return 0;
+    return (*result >= min && *result <= max);
 }

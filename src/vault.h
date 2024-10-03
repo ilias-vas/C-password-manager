@@ -11,8 +11,8 @@ typedef struct {
     category_t* root;
 } vault_t;
 
-int vault_exists(vault_t*);
-int vault_load(vault_t*);
-int vault_save(vault_t*);
+int vault_exists(vault_t* vault);
+int vault_load(vault_t* vault);
+int vault_save(vault_t* vault);
 
 #endif

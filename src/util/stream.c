@@ -24,8 +24,8 @@ void stream_free(stream_t* stream) {
     stream->it = stream->data;
 }
 
-int stream_save_to_file(stream_t* stream, const char* path) {
-    FILE* file = fopen(path, "wb");
+int stream_save_to_file(stream_t* stream, const char* file_path) {
+    FILE* file = fopen(file_path, "wb");
     if (file == NULL) return 0;
 
     fwrite(stream->data, sizeof(char), stream->size, file);
@@ -34,8 +34,8 @@ int stream_save_to_file(stream_t* stream, const char* path) {
     return 1;
 }
 
-int stream_read_from_file(stream_t* stream, const char* path) {
-    FILE* file = fopen(path, "rb");
+int stream_read_from_file(stream_t* stream, const char* file_path) {
+    FILE* file = fopen(file_path, "rb");
     if (file == NULL) return 0;
 
     fseek(file, 0, SEEK_END);
@@ -95,9 +95,9 @@ void* stream_pop(stream_t* stream, size_t size) {
     return stream->it - size;
 }
 
-void stream_pop_string(stream_t* stream, char* data) {
-    strcpy(data, stream->it);
-    stream->it += strlen(data) + 1;
+void stream_pop_string(stream_t* stream, char* result) {
+    strcpy(result, stream->it);
+    stream->it += strlen(result) + 1;
 }
 
 account_t* stream_pop_account(stream_t* stream) {

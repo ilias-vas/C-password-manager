@@ -86,7 +86,7 @@ void print_tab(int level, int is_last) {
     while(level--) printf(PRIMARY_COLOUR("%s") "%*s", delim, TAB_WIDTH, "");
 }
 
-void category_print(category_t* category, int level, int is_last) {
+void _category_print(category_t* category, int level, int is_last) {
     printf(BOLD_SECONDARY_COLOUR("%s\n"), category->name);
 
     int i;
@@ -98,7 +98,7 @@ void category_print(category_t* category, int level, int is_last) {
 
         print_tab(level + 1, is_last);
         printf(PRIMARY_COLOUR("%s"), delim);
-        category_print((category_t*) list_get(category->sub_categories, i), level + 1, is_last);
+        _category_print((category_t*) list_get(category->sub_categories, i), level + 1, is_last);
     }
 
     for (i = 0; i < category->accounts->count; i++) {
@@ -108,6 +108,10 @@ void category_print(category_t* category, int level, int is_last) {
         print_tab(level + 1, is_last);
         printf(PRIMARY_COLOUR("%s") "%s\n", delim, account->name);
     }
+}
+
+void category_print(category_t* category) {
+    _category_print(category, 0, 0);
 }
 
 void category_free(category_t* category) {

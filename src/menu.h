@@ -28,13 +28,13 @@ typedef struct {
 
 menu_item_t* menu_item_init(const char*, void(*)(application_context_t*));
 
-menu_item_t* menu_get_item(menu_t*, int);
-void menu_print(menu_t*);
-void menu_push_item(menu_t*, menu_item_t*);
-void menu_free(menu_t*);
+menu_item_t* menu_get_item(menu_t* menu, int i);
+void menu_print(menu_t* menu);
+void menu_push_item(menu_t* menu, menu_item_t* item);
+void menu_free(menu_t* menu);
 
-int get_string(char*);
-int get_int(int*);
-int get_int_range(int*, int, int);
+int get_string(char* result);
+int get_int(int* result);
+int get_int_range(int* result, int min, int max);
 
 #endif

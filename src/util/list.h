@@ -7,13 +7,13 @@ typedef struct {
 } list_t;
 
 list_t* list_init(void);
-list_t* list_copy(list_t*);
-void list_append(list_t*, void*);
-void list_remove(list_t*, int);
-void* list_get(list_t*, int);
-void list_set(list_t*, int, void*);
+list_t* list_copy(list_t* list);
+void list_append(list_t* list, void* data);
+void list_remove(list_t* list, int i);
+void* list_get(list_t* list, int i);
+void list_set(list_t* list, int i, void* data);
 
-void list_empty(list_t*);
-void list_free(list_t*);
+void list_empty(list_t* list);
+void list_free(list_t* list);
 
 #endif

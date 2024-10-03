@@ -61,7 +61,7 @@ int main(void) {
 
 void show_accounts_callback(application_context_t* context) {
     printf(PMAN "Accounts\n");
-    category_print(context->vault->root, 0, 0);
+    category_print(context->vault->root);
 }
 
 void add_account_callback(application_context_t* context) {}
