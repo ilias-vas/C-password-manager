@@ -19,8 +19,6 @@
 
 #define ROTATE_LEFT(a, b) ((a << b) | ( a >> (32 - b)))
 
-typedef unsigned int uint32_t;
-
 typedef struct {
     uint32_t h0, h1, h2, h3, h4;
 } sha1_state_t;
@@ -75,8 +73,8 @@ void process_chunk(sha1_state_t* state, unsigned char chunk[CHUNK_SIZE]) {
     free(words);
 }
 
-void sha1_hash(const char* data, size_t size, unsigned char result[20]) {
-    size_t chunks = (size / CHUNK_SIZE + 1);
+void sha1_hash(const char* data, size_t size, char result[SHA1_HASH_SIZE]) {
+    size_t chunks = ((size + 1) / CHUNK_SIZE + 1);
     size_t block_size = chunks * CHUNK_SIZE;
 
     /* padding */

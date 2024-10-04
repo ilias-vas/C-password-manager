@@ -3,6 +3,10 @@
 
 #include "../util/defines.h"
 
-void sha1_hash(const char* data, size_t size, unsigned char result[20]);
+#define SHA1_HASH_SIZE 20
+
+typedef unsigned int uint32_t;
+
+void sha1_hash(const char* data, size_t size, char result[SHA1_HASH_SIZE]);
 
 #endif
