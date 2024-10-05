@@ -1,14 +1,17 @@
 #ifndef TESTS_H
 #define TESTS_H
 
+#define PASS_STRING GREEN("[PASS] ") "%s: %s == %s\n"
+#define FAIL_STRING RED("[FAIL] ") "%s: %s != %s\n\t(Expected: \"%s\", Got: \"%s\")\n"
+
 #include "../src/util/defines.h"
-#define EXPECT_INT(expected, actual) ((expected) == (actual) ? \
-    (printf("[PASS] %s == %s\n", #expected, #actual), 1) : \
-    (printf("[FAIL] %s != %s (Expected: %d, Got: %d)\n", #expected, #actual, (expected), (actual)), 0))
+#define EXPECT_INT(name, expected, actual) ((expected) == (actual) ? \
+    (printf(PASS_STRING, name, #expected, #actual), 1) : \
+    (printf(FAIL_STRING , name, #expected, #actual, (expected), (actual)), 0))
 
 #define EXPECT_STRING(name, expected, actual) (strcmp((expected), (actual)) == 0 ? \
-    (printf(GREEN("[PASS] ") "%s: %s == %s\n", name, #expected, #actual), 1) : \
-    (printf(RED("[FAIL] ") "%s: %s != %s (Expected: \"%s\", Got: \"%s\")\n",name , #expected, #actual, (expected), (actual)), 0))
+    (printf(PASS_STRING, name, #expected, #actual), 1) : \
+    (printf(FAIL_STRING , name, #expected, #actual, (expected), (actual)), 0))
 
 #define RUN_TEST(function) do { \
         puts(CYAN("RUNNING TEST: " #function)); \

@@ -3,11 +3,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "sha1.h"
-
 #define BLOCK_SIZE 64
 
-void HMAC_SHA1(const char* key, const char* message, char result[SHA1_HASH_SIZE]) {
+void HMAC_SHA1(const char* key, const char* message, size_t size, char result[SHA1_HASH_SIZE]) {
     char key_prime[BLOCK_SIZE];
     memset(key_prime, 0, BLOCK_SIZE);
 
@@ -25,10 +23,10 @@ void HMAC_SHA1(const char* key, const char* message, char result[SHA1_HASH_SIZE]
         outer_padding[i] ^= key_prime[i];
     }
 
-    char* inner_hash = (char*) malloc(BLOCK_SIZE + strlen(message));
+    char* inner_hash = (char*) malloc(BLOCK_SIZE + size);
     memcpy(inner_hash, inner_padding, BLOCK_SIZE);
-    memcpy(inner_hash + BLOCK_SIZE, message, strlen(message));
-    sha1_hash(inner_hash, BLOCK_SIZE + strlen(message), result);
+    memcpy(inner_hash + BLOCK_SIZE, message, size);
+    sha1_hash(inner_hash, BLOCK_SIZE + size, result);
 
     char* outer_hash = (char*) malloc(BLOCK_SIZE + SHA1_HASH_SIZE);
     memcpy(outer_hash, outer_padding, BLOCK_SIZE);
