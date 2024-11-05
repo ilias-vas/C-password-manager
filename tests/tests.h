@@ -5,13 +5,13 @@
 #define FAIL_STRING RED("[FAIL] ") "%s: %s != %s\n\t(Expected: \"%s\", Got: \"%s\")\n"
 
 #include "../src/util/defines.h"
-#define EXPECT_INT(name, expected, actual) ((expected) == (actual) ? \
-    (printf(PASS_STRING, name, #expected, #actual), 1) : \
-    (printf(FAIL_STRING , name, #expected, #actual, (expected), (actual)), 0))
-
 #define EXPECT_STRING(name, expected, actual) (strcmp((expected), (actual)) == 0 ? \
     (printf(PASS_STRING, name, #expected, #actual), 1) : \
     (printf(FAIL_STRING , name, #expected, #actual, (expected), (actual)), 0))
+
+#define EXPECT_TRUE(value, name) value != 0 ? \
+    (printf(GREEN("[PASS] ") "%s\n", name), 1) : \
+    (printf(RED("[FAIL] ") "%s\n", name), 0)
 
 #define RUN_TEST(function) do { \
         puts(CYAN("RUNNING TEST: " #function)); \

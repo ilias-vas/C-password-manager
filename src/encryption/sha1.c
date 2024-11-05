@@ -17,8 +17,6 @@
 #define K2 0x8F1BBCDC
 #define K3 0xCA62C1D6
 
-#define ROTATE_LEFT(a, b) ((a << b) | ( a >> (32 - b)))
-
 typedef struct {
     uint32_t h0, h1, h2, h3, h4;
 } sha1_state_t;

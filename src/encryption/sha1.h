@@ -4,6 +4,7 @@
 #include "../util/defines.h"
 
 #define SHA1_HASH_SIZE 20
+#define ROTATE_LEFT(a, b) ((a << b) | ( a >> (32 - b)))
 
 typedef unsigned int uint32_t;
 

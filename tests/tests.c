@@ -94,9 +94,40 @@ int test_pbkdf2(int* total) {
     return passed;
 }
 
+#define ROUND_KEY_LENGTH 4
+#define ROUNDS 10
+void key_expansion(uint32_t primary_key[AES_KEY_LENGTH], uint32_t round_keys[(ROUNDS + 1) * ROUND_KEY_LENGTH]);
+int test_key_expansion(int* total) {
+    int passed = 0;
+   
+    uint32_t primary_key[AES_KEY_LENGTH] = {0, 0, 0, 0};
+    uint32_t round_keys[(ROUNDS + 1) * ROUND_KEY_LENGTH];
+    uint32_t expected_round_keys[(ROUNDS + 1) * ROUND_KEY_LENGTH] = {
+        0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x62636363, 0x62636363, 0x62636363, 0x62636363, 0x9b9898c9, 0xf9fbfbaa, 
+        0x9b9898c9, 0xf9fbfbaa, 0x90973450, 0x696ccffa, 0xf2f45733, 0x0b0fac99, 0xee06da7b, 0x876a1581, 0x759e42b2, 0x7e91ee2b,
+        0x7f2e2b88, 0xf8443e09, 0x8dda7cbb, 0xf34b9290, 0xec614b85, 0x1425758c, 0x99ff0937, 0x6ab49ba7, 0x21751787, 0x3550620b,
+        0xacaf6b3c, 0xc61bf09b, 0x0ef90333, 0x3ba96138, 0x97060a04, 0x511dfa9f, 0xb1d4d8e2, 0x8a7db9da, 0x1d7bb3de, 0x4c664941,
+        0xb4ef5bcb, 0x3e92e211, 0x23e951cf, 0x6f8f188e
+    };
+
+    key_expansion(primary_key, round_keys);
+    int equal = 1;
+    int i;
+    for (i = 0; i < (ROUNDS + 1) * ROUND_KEY_LENGTH; ++i) {
+        if (round_keys[i] == expected_round_keys[i]) continue;
+        equal = 0;
+        break;
+    }
+
+    passed += EXPECT_TRUE(equal, "all zeros");
+    ++*total;
+    return passed;
+}
+
 int main(void) {
     RUN_TEST(test_sha1);
     RUN_TEST(test_hmac);
     RUN_TEST(test_pbkdf2);
+    RUN_TEST(test_key_expansion);
     return 0;
 }
