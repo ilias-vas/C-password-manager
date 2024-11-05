@@ -66,8 +66,8 @@ int test_hmac(int* total) {
 
 int test_pbkdf2(int* total) {
     int passed = 0;
-    char derived_key[AES_KEY_LENGTH];
-    char result_string[AES_KEY_LENGTH * 2 + 1];
+    uint32_t derived_key[AES_KEY_LENGTH];
+    char result_string[AES_KEY_LENGTH * sizeof(uint32_t) * 2 + 1];
     char salt[SALT_LENGTH] = "saltdoesntmatter";
 
     /*
@@ -81,13 +81,13 @@ int test_pbkdf2(int* total) {
      * when given the same inputs.
      */
 
-    PBKDF2("plnlrtfpijpuhqylxbgqiiyipieyxvfsavzgxbbcfusqkozwpngsyejqlmjsytrmd", salt, derived_key);
-    hash_stringify(derived_key, AES_KEY_LENGTH, result_string);
+    PBKDF2("plnlrtfpijpuhqylxbgqiiyipieyxvfsavzgxbbcfusqkozwpngsyejqlmjsytrmd", salt, derived_key, AES_KEY_LENGTH);
+    hash_stringify((char*) derived_key, AES_KEY_LENGTH * sizeof(uint32_t), result_string);
     passed += EXPECT_STRING("plnlrtfpijpuhqylxbgqiiyipieyxvfsavzgxbbcfusqkozwpngsyejqlmjsytrmd", "17eb4014c8c461c300e9b61518b9a18b", result_string);
     ++*total;
 
-    PBKDF2("eBkXQTfuBqp'cTcar&g*", salt, derived_key);
-    hash_stringify(derived_key, AES_KEY_LENGTH, result_string);
+    PBKDF2("eBkXQTfuBqp'cTcar&g*", salt, derived_key, AES_KEY_LENGTH);
+    hash_stringify((char*) derived_key, AES_KEY_LENGTH * sizeof(uint32_t), result_string);
     passed += EXPECT_STRING("eBkXQTfuBqp'cTcar&g*", "17eb4014c8c461c300e9b61518b9a18b", result_string);
     ++*total;
 

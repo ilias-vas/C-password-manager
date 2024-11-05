@@ -37,12 +37,18 @@ void chain_hashes(const char* password, const char salt[SALT_LENGTH], uint32_t n
     }
 }
 
-void PBKDF2(const char* password, const char salt[SALT_LENGTH], char result[AES_KEY_LENGTH]) {
-    int i, j;
+void PBKDF2(const char* password, const char salt[SALT_LENGTH], uint32_t* result, size_t size) {
     char t[SHA1_HASH_SIZE];
-    for (i = 0; i < AES_KEY_LENGTH / SHA1_HASH_SIZE + 1; ++i) {
+    int i, total_iterations = size * sizeof(uint32_t) / SHA1_HASH_SIZE + 1;
+    for (i = 0; i < total_iterations; ++i) {
         chain_hashes(password, salt, i, t);
-        for (j = 0; j < SHA1_HASH_SIZE && j + i * SHA1_HASH_SIZE < AES_KEY_LENGTH; ++j)
-            result[j + i * SHA1_HASH_SIZE] = t[j];
+
+        /* calculate the copy size in bytes */
+        size_t copy_size = (size * sizeof(uint32_t) < SHA1_HASH_SIZE) ? size * sizeof(uint32_t) : SHA1_HASH_SIZE;
+        memcpy(result, t, copy_size);
+
+        /* move the result pointer to the next block to be copied, and decrease the size by the amount copied */
+        size -= copy_size / sizeof(uint32_t);
+        result += copy_size / sizeof(uint32_t);
     }
 }
