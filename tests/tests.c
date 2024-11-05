@@ -6,7 +6,7 @@
 #include "../src/encryption/hmac.h"
 #include "../src/encryption/pbkdf2.h"
 
-void hash_stringify(const char* data, size_t size, char result[size * 2 + 1]) {
+void hash_stringify(const char* data, size_t size, char* result) {
     int i;
     for(i = 0; i < size; ++i) {
         sprintf(result + i * 2, "%02x", (unsigned char) data[i]);
@@ -66,7 +66,7 @@ int test_hmac(int* total) {
 
 int test_pbkdf2(int* total) {
     int passed = 0;
-    uint32_t derived_key[AES_KEY_LENGTH];
+    aes_key_t key = {0};
     char result_string[AES_KEY_LENGTH * sizeof(uint32_t) * 2 + 1];
     char salt[SALT_LENGTH] = "saltdoesntmatter";
 
@@ -81,27 +81,25 @@ int test_pbkdf2(int* total) {
      * when given the same inputs.
      */
 
-    PBKDF2("plnlrtfpijpuhqylxbgqiiyipieyxvfsavzgxbbcfusqkozwpngsyejqlmjsytrmd", salt, derived_key, AES_KEY_LENGTH);
-    hash_stringify((char*) derived_key, AES_KEY_LENGTH * sizeof(uint32_t), result_string);
+    PBKDF2("plnlrtfpijpuhqylxbgqiiyipieyxvfsavzgxbbcfusqkozwpngsyejqlmjsytrmd", salt, &key);
+    hash_stringify((char*)key.words, AES_KEY_LENGTH * sizeof(uint32_t), result_string);
     passed += EXPECT_STRING("plnlrtfpijpuhqylxbgqiiyipieyxvfsavzgxbbcfusqkozwpngsyejqlmjsytrmd", "17eb4014c8c461c300e9b61518b9a18b", result_string);
     ++*total;
 
-    PBKDF2("eBkXQTfuBqp'cTcar&g*", salt, derived_key, AES_KEY_LENGTH);
-    hash_stringify((char*) derived_key, AES_KEY_LENGTH * sizeof(uint32_t), result_string);
+    PBKDF2("eBkXQTfuBqp'cTcar&g*", salt, &key);
+    hash_stringify((char*)key.words, AES_KEY_LENGTH * sizeof(uint32_t), result_string);
     passed += EXPECT_STRING("eBkXQTfuBqp'cTcar&g*", "17eb4014c8c461c300e9b61518b9a18b", result_string);
     ++*total;
 
     return passed;
 }
 
-#define ROUND_KEY_LENGTH 4
-#define ROUNDS 10
-void key_expansion(uint32_t primary_key[AES_KEY_LENGTH], uint32_t round_keys[(ROUNDS + 1) * ROUND_KEY_LENGTH]);
+void key_expansion(aes_key_t primary_key, aes_key_t round_keys[ROUNDS + 1]);
 int test_key_expansion(int* total) {
     int passed = 0;
    
-    uint32_t primary_key[AES_KEY_LENGTH] = {0, 0, 0, 0};
-    uint32_t round_keys[(ROUNDS + 1) * ROUND_KEY_LENGTH];
+    aes_key_t primary_key = {0};
+    aes_key_t round_keys[ROUNDS + 1];
     uint32_t expected_round_keys[(ROUNDS + 1) * ROUND_KEY_LENGTH] = {
         0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x62636363, 0x62636363, 0x62636363, 0x62636363, 0x9b9898c9, 0xf9fbfbaa, 
         0x9b9898c9, 0xf9fbfbaa, 0x90973450, 0x696ccffa, 0xf2f45733, 0x0b0fac99, 0xee06da7b, 0x876a1581, 0x759e42b2, 0x7e91ee2b,
@@ -114,7 +112,7 @@ int test_key_expansion(int* total) {
     int equal = 1;
     int i;
     for (i = 0; i < (ROUNDS + 1) * ROUND_KEY_LENGTH; ++i) {
-        if (round_keys[i] == expected_round_keys[i]) continue;
+        if (round_keys->words[i] == expected_round_keys[i]) continue;
         equal = 0;
         break;
     }

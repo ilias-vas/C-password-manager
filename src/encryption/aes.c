@@ -23,8 +23,7 @@ const uint8_t sbox[265] = {
 };
 
 /* Using AES-128 which requires a round key length of 4 32 bit words */
-#define ROUND_KEY_LENGTH 4
-#define ROUNDS 10
+
 uint8_t round_constants[ROUNDS + 1];
 
 void generate_round_constants() {
@@ -46,22 +45,56 @@ uint32_t sub_word(uint32_t word) {
     return word;
 }
 
-void key_expansion(uint32_t primary_key[AES_KEY_LENGTH], uint32_t round_keys[(ROUNDS + 1) * ROUND_KEY_LENGTH]) {
+void key_expansion(aes_key_t primary_key, aes_key_t round_keys[ROUNDS + 1]) {
     /* first round key is the primary key */
     generate_round_constants();
-    memcpy(round_keys, primary_key, AES_KEY_LENGTH * sizeof(uint32_t));
+    uint32_t round_key_words[(ROUNDS + 1) * ROUND_KEY_LENGTH];
+    memcpy(round_key_words, primary_key.words, AES_KEY_LENGTH * sizeof(uint32_t));
 
     uint32_t temp;
     int i;
 
     /* loop over the keys but skip the primary key */
-    for (i = AES_KEY_LENGTH - 1; i < (ROUNDS + 1) * ROUND_KEY_LENGTH; ++i) {
-        temp = round_keys[i - 1];
+    for (i = AES_KEY_LENGTH; i < (ROUNDS + 1) * ROUND_KEY_LENGTH; ++i) {
+        temp = round_key_words[i - 1];
 
         if (i % AES_KEY_LENGTH == 0) {
             temp = sub_word(ROTATE_LEFT(temp, 8)) ^ (round_constants[i / AES_KEY_LENGTH] << 24);
         }
 
-        round_keys[i] = round_keys[i - AES_KEY_LENGTH] ^ temp;
+        round_key_words[i] = round_key_words[i - AES_KEY_LENGTH] ^ temp;
     }
+
+    memcpy(round_keys, round_key_words, (ROUNDS + 1) * ROUND_KEY_LENGTH * sizeof(uint32_t));
+}
+
+void shift_rows(uint32_t block[BLOCK_SIZE]) {
+    
+}
+
+void mix_columns(uint32_t block[BLOCK_SIZE]) {
+
+}
+
+void add_round_key(uint32_t block[BLOCK_SIZE], aes_key_t key) {
+
+}
+
+void aes_encrypt(uint32_t block[BLOCK_SIZE], aes_key_t key) {
+    aes_key_t round_keys[ROUNDS + 1];
+    key_expansion(key, round_keys);
+
+    add_round_key(block, round_keys[0]);
+
+    int i, j;
+    for (i = 1; i < ROUNDS; ++i) {
+        for (j = 0; j < 4; ++j) block[j] = sub_word(block[j]);
+        shift_rows(block);
+        mix_columns(block);
+        add_round_key(block, key);
+    }
+
+    for (j = 0; j < 4; ++j) block[j] = sub_word(block[j]);
+    shift_rows(block);
+    add_round_key(block, key);
 }

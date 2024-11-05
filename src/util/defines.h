@@ -35,6 +35,7 @@
 
 #define PMAN PRIMARY_COLOUR("[pman] ")
 
+typedef unsigned int uint32_t;
 typedef __SIZE_TYPE__ size_t;
 
 #endif
