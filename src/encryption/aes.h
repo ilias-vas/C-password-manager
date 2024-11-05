@@ -3,9 +3,8 @@
 
 #include "../util/defines.h"
 
-#define AES_KEY_LENGTH 4 /* 128, 192 or 256 bits */
-#define BLOCK_SIZE 4
-#define ROUND_KEY_LENGTH 4
+#define BLOCK_SIZE 16 /* 16 bytes -> 128 bits */
+#define AES_KEY_LENGTH 4 /* 4 words -> 128 bits*/
 #define ROUNDS 10
 typedef unsigned char uint8_t;
 

@@ -3,6 +3,10 @@
 #include "sha1.h"
 #include <string.h>
 
+/* https://en.wikipedia.org/wiki/Rijndael_MixColumns */
+#define GMUL2(value) ((value << 1) ^ ((value & 0x80) ? 0x1b : 0x00))
+#define GMUL3(value) (GMUL2(value) ^ value)
+
 const uint8_t sbox[265] = {
     0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
     0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0, 
@@ -45,17 +49,17 @@ uint32_t sub_word(uint32_t word) {
     return word;
 }
 
-void key_expansion(aes_key_t primary_key, aes_key_t round_keys[ROUNDS + 1]) {
+void key_expansion(const aes_key_t* primary_key, aes_key_t round_keys[ROUNDS + 1]) {
     /* first round key is the primary key */
     generate_round_constants();
-    uint32_t round_key_words[(ROUNDS + 1) * ROUND_KEY_LENGTH];
-    memcpy(round_key_words, primary_key.words, AES_KEY_LENGTH * sizeof(uint32_t));
+    uint32_t round_key_words[(ROUNDS + 1) * AES_KEY_LENGTH];
+    memcpy(round_key_words, primary_key->words, AES_KEY_LENGTH * sizeof(uint32_t));
 
     uint32_t temp;
     int i;
 
     /* loop over the keys but skip the primary key */
-    for (i = AES_KEY_LENGTH; i < (ROUNDS + 1) * ROUND_KEY_LENGTH; ++i) {
+    for (i = AES_KEY_LENGTH; i < (ROUNDS + 1) * AES_KEY_LENGTH; ++i) {
         temp = round_key_words[i - 1];
 
         if (i % AES_KEY_LENGTH == 0) {
@@ -65,36 +69,72 @@ void key_expansion(aes_key_t primary_key, aes_key_t round_keys[ROUNDS + 1]) {
         round_key_words[i] = round_key_words[i - AES_KEY_LENGTH] ^ temp;
     }
 
-    memcpy(round_keys, round_key_words, (ROUNDS + 1) * ROUND_KEY_LENGTH * sizeof(uint32_t));
+    memcpy(round_keys, round_key_words, (ROUNDS + 1) * AES_KEY_LENGTH * sizeof(uint32_t));
 }
 
-void shift_rows(uint32_t block[BLOCK_SIZE]) {
-    
+void shift_rows(uint8_t block[BLOCK_SIZE]) {
+    uint8_t temp;
+
+    /* nothing happens to row 0*/
+    /* row 1 shift by 1 byte */
+    temp = block[1];
+    block[1] = block[5];
+    block[5] = block[9];
+    block[9] = block[13];
+    block[13] = temp;
+
+    /* row 2 shift by 2 bytes */
+    temp = block[2];
+    block[2] = block[10];
+    block[10] = temp;
+    temp = block[6];
+    block[6] = block[14];
+    block[14] = temp;
+
+    /* row 3 shift by 3 bytes */
+    temp = block[3];
+    block[3] = block[15];
+    block[15] = block[11];
+    block[11] = block[7];
+    block[7] = temp;
 }
 
-void mix_columns(uint32_t block[BLOCK_SIZE]) {
+void mix_columns(uint8_t block[BLOCK_SIZE]) {
+    int column;
+    for (column = 0; column < 4; ++column) {
+        uint8_t s0 = block[column];
+        uint8_t s1 = block[4 + column];
+        uint8_t s2 = block[8 + column];
+        uint8_t s3 = block[12 + column];
 
+        block[column]      = GMUL2(s0) ^ GMUL3(s1) ^ s2 ^ s3;
+        block[4 + column]  = s0 ^ GMUL2(s1) ^ GMUL3(s2) ^ s3;
+        block[8 + column]  = s0 ^ s1 ^ GMUL2(s2) ^ GMUL3(s3);
+        block[12 + column] = GMUL3(s0) ^ s1 ^ s2 ^ GMUL2(s3);
+    }
 }
 
-void add_round_key(uint32_t block[BLOCK_SIZE], aes_key_t key) {
-
+void add_round_key(uint8_t block[BLOCK_SIZE], const aes_key_t* key) {
+    uint8_t* bytes = (uint8_t*) key->words;
+    int i;
+    for (i = 0; i < BLOCK_SIZE; ++i) block[i] ^= bytes[i];
 }
 
-void aes_encrypt(uint32_t block[BLOCK_SIZE], aes_key_t key) {
+void aes_encrypt(uint8_t block[BLOCK_SIZE], const aes_key_t* key) {
     aes_key_t round_keys[ROUNDS + 1];
     key_expansion(key, round_keys);
 
-    add_round_key(block, round_keys[0]);
+    add_round_key(block, &round_keys[0]);
 
     int i, j;
     for (i = 1; i < ROUNDS; ++i) {
-        for (j = 0; j < 4; ++j) block[j] = sub_word(block[j]);
-        shift_rows(block);
+        for (j = 0; j < BLOCK_SIZE; ++j) block[j] = sbox[block[j]];
+        shift_rows(block);  
         mix_columns(block);
-        add_round_key(block, key);
+        add_round_key(block, &round_keys[i]);
     }
 
-    for (j = 0; j < 4; ++j) block[j] = sub_word(block[j]);
+    for (j = 0; j < BLOCK_SIZE; ++j) block[j] = sbox[block[j]];
     shift_rows(block);
-    add_round_key(block, key);
+    add_round_key(block, &round_keys[ROUNDS]);
 }
