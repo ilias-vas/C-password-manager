@@ -94,13 +94,13 @@ int test_pbkdf2(int* total) {
     return passed;
 }
 
-void key_expansion(aes_key_t primary_key, aes_key_t round_keys[ROUNDS + 1]);
+void key_expansion(const aes_key_t* primary_key, aes_key_t round_keys[ROUNDS + 1]);
 int test_key_expansion(int* total) {
     int passed = 0;
    
     aes_key_t primary_key = {0};
     aes_key_t round_keys[ROUNDS + 1];
-    uint32_t expected_round_keys[(ROUNDS + 1) * ROUND_KEY_LENGTH] = {
+    uint32_t expected_round_keys[(ROUNDS + 1) * AES_KEY_LENGTH] = {
         0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x62636363, 0x62636363, 0x62636363, 0x62636363, 0x9b9898c9, 0xf9fbfbaa, 
         0x9b9898c9, 0xf9fbfbaa, 0x90973450, 0x696ccffa, 0xf2f45733, 0x0b0fac99, 0xee06da7b, 0x876a1581, 0x759e42b2, 0x7e91ee2b,
         0x7f2e2b88, 0xf8443e09, 0x8dda7cbb, 0xf34b9290, 0xec614b85, 0x1425758c, 0x99ff0937, 0x6ab49ba7, 0x21751787, 0x3550620b,
@@ -108,10 +108,10 @@ int test_key_expansion(int* total) {
         0xb4ef5bcb, 0x3e92e211, 0x23e951cf, 0x6f8f188e
     };
 
-    key_expansion(primary_key, round_keys);
+    key_expansion(&primary_key, round_keys);
     int equal = 1;
     int i;
-    for (i = 0; i < (ROUNDS + 1) * ROUND_KEY_LENGTH; ++i) {
+    for (i = 0; i < (ROUNDS + 1) * AES_KEY_LENGTH; ++i) {
         if (round_keys->words[i] == expected_round_keys[i]) continue;
         equal = 0;
         break;
@@ -122,10 +122,39 @@ int test_key_expansion(int* total) {
     return passed;
 }
 
+void aes_encrypt(uint8_t block[BLOCK_SIZE], const aes_key_t* key);
+void aes_decrypt(uint8_t block[BLOCK_SIZE], const aes_key_t* key);
+int test_aes(int* total) {
+    int passed = 0;
+   
+    aes_key_t key = {0};
+    uint8_t block[BLOCK_SIZE] = {
+        0x00, 0x00, 0x01, 0x01, 0x03, 0x03, 0x07, 0x07, 0x0f, 0x0f, 0x1f, 0x1f, 0x3f, 0x3f, 0x7f, 0x7f
+    };
+    uint8_t expected[BLOCK_SIZE];
+    memcpy(expected, block, BLOCK_SIZE);
+
+    aes_encrypt(block, &key);
+    aes_decrypt(block, &key);
+
+    int equal = 1;
+    int i;
+    for (i = 0; i < BLOCK_SIZE; ++i) {
+        if (block[i] == expected[i]) continue;
+        equal = 0;
+        
+    }
+
+    passed += EXPECT_TRUE(equal, "1 block encrypt and decrypt");
+    ++*total;
+    return passed;
+}
+
 int main(void) {
     RUN_TEST(test_sha1);
     RUN_TEST(test_hmac);
     RUN_TEST(test_pbkdf2);
     RUN_TEST(test_key_expansion);
+    RUN_TEST(test_aes);
     return 0;
 }
