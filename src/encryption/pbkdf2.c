@@ -37,11 +37,12 @@ void chain_hashes(const char* password, const char salt[SALT_LENGTH], uint32_t n
     }
 }
 
-void PBKDF2(const char* password, const char salt[SALT_LENGTH], aes_key_t* key) {
+aes_key_t PBKDF2(const char* password, const char salt[SALT_LENGTH]) {
     char t[SHA1_HASH_SIZE];
     int size = AES_KEY_LENGTH;
     int i, total_iterations = size * sizeof(uint32_t) / SHA1_HASH_SIZE + 1;
-    uint32_t* result = key->words;
+    aes_key_t key = {0};
+    uint32_t* result = key.words;
 
     for (i = 0; i < total_iterations; ++i) {
         chain_hashes(password, salt, i, t);
@@ -54,4 +55,5 @@ void PBKDF2(const char* password, const char salt[SALT_LENGTH], aes_key_t* key) 
         size -= copy_size / sizeof(uint32_t);
         result += copy_size / sizeof(uint32_t);
     }
+    return key;
 }

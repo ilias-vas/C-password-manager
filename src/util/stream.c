@@ -43,7 +43,7 @@ int stream_read_from_file(stream_t* stream, const char* file_path) {
     rewind(file);
 
     free(stream->data);
-    stream->size = 0;
+    stream->size = size;
     stream->capacity = size;
     stream->data = (char*) malloc(sizeof(char) * stream->capacity);
     stream->it = stream->data;

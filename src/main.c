@@ -29,6 +29,7 @@ int main(void) {
         printf(PMAN "Welcome. Please enter a new master password.\n");
 
         PROMPT_USER("> ", "", get_string(vault.password));
+        vault.root = category_init("root");
     }
 
     application_context_t app_context = {0};
@@ -56,6 +57,7 @@ int main(void) {
     }
 
     menu_free(&main_menu);
+    category_free(vault.root);
     return 0;
 }
 

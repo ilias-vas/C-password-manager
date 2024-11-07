@@ -8,6 +8,6 @@
 #define SALT_LENGTH 16
 
 void generate_salt(char* result, size_t size);
-void PBKDF2(const char* password, const char salt[SALT_LENGTH], aes_key_t* key);
+aes_key_t PBKDF2(const char* password, const char salt[SALT_LENGTH]);
 
 #endif
