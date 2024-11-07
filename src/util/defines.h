@@ -24,6 +24,7 @@
 
 #define MAX_NAME_SIZE 128
 #define MAX_PASSWORD_SIZE 128
+#define MAX_PATH_SIZE 4092
 
 #define CONCAT(a, b) a##b
 #define EXPAND_AND_CONCAT(a, b) CONCAT(a, b)

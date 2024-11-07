@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "util/stream.h"
+
 #define TAB_WIDTH 2
 
 account_t* account_init(const char* name, const char* password) {
@@ -21,55 +23,52 @@ category_t* category_init(const char* name) {
     return ret;
 }
 
-void clearInputBuffer() {
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF) {};
+category_t* category_find_category(const char* name, const category_t* parent) {
+    int i;
+    for (i = 0; i < parent->sub_categories->count; ++i) {
+        category_t* sub_category = list_get(parent->sub_categories, i);
+        if (strcmp(name, sub_category->name) == 0) return sub_category;
+    }
+    return NULL;
+}
+
+/* get account based on a path eg: cat1/cat2/acc_name */
+account_t* category_find_account(const char* path, category_t* parent) {
+    int i, count;
+    char name[MAX_NAME_SIZE];
+    stream_t names = stream_from_path(path, &count);
+
+    category_t* current = parent;
+    for (i = 0; i < count - 1; ++i) {
+        stream_pop_string(&names, name);
+        category_t* next = category_find_category(name, current);
+        if (next) current = next;
+        else {
+            stream_free(&names);
+            return NULL;
+        }
+    }
+
+    account_t* account;
+    stream_pop_string(&names, name);
+    for (i = 0; i < current->accounts->count; ++i) {
+        account = list_get(current->accounts, i);
+        if (strcmp(account->name, name) == 0) {
+            stream_free(&names);
+            return account;
+        }
+    }
+
+    stream_free(&names);
+    return NULL;
 }
 
 void category_add_account(category_t* category, account_t* account) {
     list_append(category->accounts, account);
 }
 
-void category_remove_account(category_t* category, char *name) {
-    clearInputBuffer();
-    int i, j;
-    char choice;
-    int account_found = 0;
-
-    /* loop through sub categories */
-    for (i = 0; i < category->sub_categories->count; i++) {
-        category_t* currCat = (category_t*) list_get(category->sub_categories, i);
-
-        /* loop through every account in subcategories */
-        for (j = 0; j < currCat->accounts->count; j++) {
-            account_t* currAcc = (account_t*) list_get(currCat->accounts, j);
-
-            /* if it's a match, remove */
-            if (strcmp(currAcc->name, name) == 0) {
-                printf(PMAN "Remove account %s? (y/n)\n", currAcc->name);
-                printf("> ");
-
-                scanf(" %c", &choice);
-                if (choice == 'y') {
-                    list_remove(currCat->accounts, j);
-                    printf(PMAN "Account %s removed.\n", currAcc->name);
-                    account_found = 1;
-                    clearInputBuffer();
-                    break;
-                } else {
-                    printf(PMAN "Account %s not removed\n", currAcc->name);
-                    account_found = 1;
-                    clearInputBuffer();
-                }
-            }
-        }
-
-        if (account_found) break;
-    }
-
-    if (!account_found) {
-        printf("Account not found.\n");
-    }
+int category_remove_account(category_t* category, const char* path) {
+    return 0;
 }
 
 void category_add_subcategory(category_t* category, category_t* subcategory) {

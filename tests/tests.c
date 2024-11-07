@@ -189,10 +189,24 @@ int test_aes(int* total) {
     stream_free(&plain_text);
     stream_free(&cypher_text);
     stream_free(&decrypted_text);
+    
+    return passed;
+}
 
+int test_find_account(int* total) {
+    int passed = 0;
+   
+    category_t* root = category_init("root");
+    account_t* test = account_init("test", "");
+    category_add_account(root, test);
+
+    account_t* res = category_find_account("test", root);
+    passed += EXPECT_TRUE((res != NULL), "simple find account");
+    ++*total;
 
     return passed;
 }
+
 
 int main(void) {
     RUN_TEST(test_sha1);
@@ -200,5 +214,6 @@ int main(void) {
     RUN_TEST(test_pbkdf2);
     RUN_TEST(test_key_expansion);
     RUN_TEST(test_aes);
+    RUN_TEST(test_find_account);
     return 0;
 }

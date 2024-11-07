@@ -24,6 +24,24 @@ void stream_free(stream_t* stream) {
     stream->it = stream->data;
 }
 
+stream_t stream_from_path(const char* path, int* count) {
+    char copy[MAX_PATH_SIZE];
+    strcpy(copy, path);
+    int size = strlen(copy) + 1;
+
+    int i;
+    *count = 1;
+    for (i = 0; i < size; ++i) {
+        if (copy[i] != '/') continue;
+        copy[i] = 0;
+        ++*count;
+    }
+
+    stream_t stream = stream_init();
+    stream_push(&stream, copy, size);
+    return stream;
+}
+
 int stream_save_to_file(stream_t* stream, const char* file_path) {
     FILE* file = fopen(file_path, "wb");
     if (file == NULL) return 0;

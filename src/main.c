@@ -4,6 +4,7 @@
 #include "account.h"
 #include "application.h"
 #include "util/defines.h"
+#include "util/stream.h"
 #include "menu.h"
 #include "vault.h"
 
@@ -66,18 +67,49 @@ void show_accounts_callback(application_context_t* context) {
     category_print(context->vault->root);
 }
 
-void add_account_callback(application_context_t* context) {}
+void add_account_callback(application_context_t* context) {
+    puts(PMAN "Add Account");
+    char path[MAX_PATH_SIZE];
+    char password[MAX_PASSWORD_SIZE];
+
+    puts("Enter account path. eg accountName or categoryName/subcategoryName/accountName");
+    PROMPT_USER( "> ", "", get_string(path));
+
+    if (category_find_account(path, context->vault->root)) {
+        puts(RED("Account already exists"));
+        return;
+    }
+
+    puts("Enter password for account");
+    PROMPT_USER( "> ", "", get_string(password));
+
+    char name[MAX_NAME_SIZE];
+    int i, count;
+    category_t* parent = context->vault->root;
+    stream_t names = stream_from_path(path, &count);
+    for (i = 0; i < count - 1; ++i) {
+        stream_pop_string(&names, name);
+
+        category_t* category;
+        category = category_find_category(name, parent);
+        if (!category) {
+            category = category_init(name);
+            category_add_subcategory(parent, category);
+        }
+
+        parent = category;   
+    }
+
+    stream_pop_string(&names, name);
+    account_t* account = account_init(name, password);
+    category_add_account(parent, account);
+    puts(GREEN("Account added successfully"));
+}
 
 void edit_account_callback(application_context_t* context) {}
 
 void remove_account_callback(application_context_t* context) {
-    char accName[MAX_NAME_SIZE];
-    printf(PMAN "Remove Acount\n");
-    printf(PMAN "Enter Account name.\n");
-    printf("> ");
-    scanf("%s", accName);
-
-    category_remove_account(context->vault->root, accName);
+    
 }
 
 void show_password_callback(application_context_t* context) {}

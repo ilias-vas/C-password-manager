@@ -13,6 +13,8 @@ typedef struct {
 stream_t stream_init(void);
 void stream_free(stream_t*);
 
+stream_t stream_from_path(const char* path, int* count);
+
 int stream_save_to_file(stream_t* stream, const char* file_path);
 int stream_read_from_file(stream_t* stream, const char* file_path);
 
