@@ -14,6 +14,7 @@ void add_account_callback(application_context_t*);
 void change_account_password_callback(application_context_t*);
 void remove_account_callback(application_context_t*);
 void show_password_callback(application_context_t*);
+void save_exit_callback(application_context_t*);
 void exit_callback(application_context_t*);
 
 int main(void) {
@@ -44,7 +45,8 @@ int main(void) {
     menu_push_item(&main_menu, menu_item_init("Change Account Password", &change_account_password_callback));
     menu_push_item(&main_menu, menu_item_init("Remove Account", &remove_account_callback));
     menu_push_item(&main_menu, menu_item_init("Show Password", &show_password_callback));
-    menu_push_item(&main_menu, menu_item_init("Save and Exit", &exit_callback));
+    menu_push_item(&main_menu, menu_item_init("Save and Exit", &save_exit_callback));
+    menu_push_item(&main_menu, menu_item_init("Exit without saving", &exit_callback));
 
     while (1) {
         menu_print(&main_menu);
@@ -164,7 +166,11 @@ void show_password_callback(application_context_t* context) {
     puts(account->password);
 }
 
-void exit_callback(application_context_t* context) {
+void save_exit_callback(application_context_t* context) {
     vault_save(context->vault);
+    exit(0);
+}
+
+void exit_callback(application_context_t* context) {
     exit(0);
 }
