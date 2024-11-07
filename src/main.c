@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "account.h"
 #include "application.h"
@@ -10,7 +11,7 @@
 
 void show_accounts_callback(application_context_t*);
 void add_account_callback(application_context_t*);
-void edit_account_callback(application_context_t*);
+void change_account_password_callback(application_context_t*);
 void remove_account_callback(application_context_t*);
 void show_password_callback(application_context_t*);
 void exit_callback(application_context_t*);
@@ -40,7 +41,7 @@ int main(void) {
     sscanf(main_menu.title, PMAN "Welcome %s", vault.username);
     menu_push_item(&main_menu, menu_item_init("Show Accounts", &show_accounts_callback));
     menu_push_item(&main_menu, menu_item_init("Add Account", &add_account_callback));
-    menu_push_item(&main_menu, menu_item_init("Edit Account", &edit_account_callback));
+    menu_push_item(&main_menu, menu_item_init("Change Account Password", &change_account_password_callback));
     menu_push_item(&main_menu, menu_item_init("Remove Account", &remove_account_callback));
     menu_push_item(&main_menu, menu_item_init("Show Password", &show_password_callback));
     menu_push_item(&main_menu, menu_item_init("Save and Exit", &exit_callback));
@@ -106,13 +107,48 @@ void add_account_callback(application_context_t* context) {
     puts(GREEN("Account added successfully"));
 }
 
-void edit_account_callback(application_context_t* context) {}
+void change_account_password_callback(application_context_t* context) {
+    puts(PMAN "Change Account Password");
+    char path[MAX_PATH_SIZE];
+    char password[MAX_PASSWORD_SIZE];
+
+    category_print(context->vault->root);
+    puts("Enter account path. eg accountName or categoryName/subcategoryName/accountName");
+    PROMPT_USER( "> ", "", get_string(path));
+
+    account_t* account = category_find_account(path, context->vault->root); 
+    if (!account) {
+        puts(RED("Account does not exist"));
+        return;
+    }
+
+    puts("Enter new password");
+    PROMPT_USER( "> ", "", get_string(password));
+
+    strcpy(account->password, password);
+    puts(GREEN("Password changed successfully"));
+}
 
 void remove_account_callback(application_context_t* context) {
     
 }
 
-void show_password_callback(application_context_t* context) {}
+void show_password_callback(application_context_t* context) {
+    puts(PMAN "Show Account Password");
+    char path[MAX_PATH_SIZE];
+
+    category_print(context->vault->root);
+    puts("Enter account path. eg accountName or categoryName/subcategoryName/accountName");
+    PROMPT_USER( "> ", "", get_string(path));
+
+    account_t* account = category_find_account(path, context->vault->root); 
+    if (!account) {
+        puts(RED("Account does not exist"));
+        return;
+    }
+
+    puts(account->password);
+}
 
 void exit_callback(application_context_t* context) {
     vault_save(context->vault);
