@@ -142,11 +142,55 @@ int test_aes(int* total) {
     for (i = 0; i < BLOCK_SIZE; ++i) {
         if (block[i] == expected[i]) continue;
         equal = 0;
-        
+        break;
     }
-
     passed += EXPECT_TRUE(equal, "1 block encrypt and decrypt");
     ++*total;
+
+    uint8_t iv[BLOCK_SIZE];
+    generate_salt((char*)iv, BLOCK_SIZE);
+    stream_t plain_text = stream_init();
+    stream_push_string(&plain_text, "this is a short test");
+
+    stream_t cypher_text = aes_encrypt_stream(&plain_text, &key, iv);
+    stream_t decrypted_text = aes_decrypt_stream(&cypher_text, &key, iv);
+
+    equal = plain_text.size == decrypted_text.size;
+    for (i = 0; i < plain_text.size; ++i) {
+        if (!equal) break;
+        if (plain_text.data[i] == decrypted_text.data[i]) continue;
+        equal = 0;
+    }
+
+    passed += EXPECT_TRUE(equal, "short stream encrypt and decrypt");
+    ++*total;
+
+    stream_free(&plain_text);
+    stream_free(&cypher_text);
+    stream_free(&decrypted_text);
+
+    generate_salt((char*)iv, BLOCK_SIZE);
+    plain_text = stream_init();
+    stream_push_string(&plain_text, "this is a much longer text that will span over multiple blocks so that we can test if everything is working properly");
+
+    cypher_text = aes_encrypt_stream(&plain_text, &key, iv);
+    decrypted_text = aes_decrypt_stream(&cypher_text, &key, iv);
+
+    equal = plain_text.size == decrypted_text.size;
+    for (i = 0; i < plain_text.size; ++i) {
+        if (!equal) break;
+        if (plain_text.data[i] == decrypted_text.data[i]) continue;
+        equal = 0;
+    }
+
+    passed += EXPECT_TRUE(equal, "long stream encrypt and decrypt");
+    ++*total;
+
+    stream_free(&plain_text);
+    stream_free(&cypher_text);
+    stream_free(&decrypted_text);
+
+
     return passed;
 }
 

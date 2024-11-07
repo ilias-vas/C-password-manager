@@ -80,6 +80,8 @@ void sha1_hash(const char* data, size_t size, char result[SHA1_HASH_SIZE]) {
     memcpy(block, data, size);
     block[size] = 0x80;
 
+    /* this assumes that the platform is little endian */
+    /* swap to big endian */
     size_t length = __builtin_bswap64(size * 8);
     memcpy(block + block_size - sizeof(length), &length, sizeof(length));
 

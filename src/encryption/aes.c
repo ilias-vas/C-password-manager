@@ -2,6 +2,7 @@
 
 #include "sha1.h"
 #include <string.h>
+#include <stdlib.h>
 
 /* https://en.wikipedia.org/wiki/Rijndael_MixColumns */
 #define GMUL2(value)  ((value << 1) ^ ((value & 0x80) ? 0x1b : 0x00))
@@ -221,4 +222,80 @@ void aes_decrypt(uint8_t block[BLOCK_SIZE], const aes_key_t* key) {
     }
 
     add_round_key(block, &round_keys[0]);
+}
+
+/* pkcs7 padding adds the value of the total length of padded bytes (minimum of 1 maximum of BLOCK_SIZE)
+*  to the end of the original data aligned to BLOCK_SIZE blocks
+*/
+void pkcs7_pad(uint8_t* data, size_t data_len, size_t padded_len) {
+    uint8_t padding_value = padded_len - data_len;
+    int i;
+    for (i = data_len; i < padded_len; ++i) data[i] = padding_value;
+}
+
+size_t pkcs7_unpad(uint8_t* data, size_t data_len) {
+    uint8_t padding_value = data[data_len - 1];
+    return data_len - padding_value;
+}
+
+void xor_block(uint8_t* block, const uint8_t* other) {
+    int i;
+    for (i = 0; i < BLOCK_SIZE; ++i) block[i] ^= other[i];
+}
+
+/* We are using Cypher block chaining (cbc) AES encryption
+*  https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Cipher_block_chaining_(CBC)
+*/
+
+stream_t aes_encrypt_stream(stream_t* stream, const aes_key_t* key, const uint8_t iv[BLOCK_SIZE]) {
+    /* create a padded buffer aligned to BLOCK_SIZE */
+    size_t padded_len = ((stream->size + BLOCK_SIZE - 1) / BLOCK_SIZE) * BLOCK_SIZE;
+    uint8_t* buffer = (uint8_t*) malloc(padded_len);
+    memcpy(buffer, stream->data, stream->size);
+    pkcs7_pad(buffer, stream->size, padded_len);
+
+    /* an array of random bytes is used so that the same input will produce unique outputs every time */
+    uint8_t previous_block[BLOCK_SIZE];
+    memcpy(previous_block, iv, BLOCK_SIZE);
+
+    stream_t cypher = stream_init();
+    int i;
+    for (i = 0; i < padded_len; i += BLOCK_SIZE) {
+        uint8_t* current_block = buffer + i;
+        xor_block(current_block, previous_block);
+        aes_encrypt(current_block, key);
+
+        memcpy(previous_block, current_block, BLOCK_SIZE); 
+        stream_push(&cypher, current_block, BLOCK_SIZE);
+    }
+
+    free(buffer);
+    return cypher;
+}
+
+stream_t aes_decrypt_stream(stream_t* stream, const aes_key_t* key, const uint8_t iv[BLOCK_SIZE]) {
+    uint8_t current_block[BLOCK_SIZE];
+    uint8_t previous_block[BLOCK_SIZE];
+
+    memcpy(current_block, iv, BLOCK_SIZE);
+
+    stream_t plain = stream_init();
+    int i;
+    for (i = 0; i < stream->size; i += BLOCK_SIZE) {
+        memcpy(previous_block, current_block, BLOCK_SIZE);
+        memcpy(current_block, stream->data + i, BLOCK_SIZE);
+
+        aes_decrypt(current_block, key);
+        xor_block(current_block, previous_block);
+        stream_push(&plain, current_block, BLOCK_SIZE);
+
+        /* we are xoring with the encrypted block so we need to use that for the next one*/
+        memcpy(current_block, stream->data + i, BLOCK_SIZE);
+    }
+
+    /* remove the padding from the end */
+    size_t unpadded_len = pkcs7_unpad((uint8_t*)plain.data, plain.size);
+    
+    plain.size = unpadded_len;
+    return plain;
 }
