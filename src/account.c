@@ -67,11 +67,53 @@ void category_add_account(category_t* category, account_t* account) {
     list_append(category->accounts, account);
 }
 
-int category_remove_account(category_t* category, const char* path) {
-    return 0;
+void category_remove_subcategory(category_t* parent, category_t* subcategory) {
+    int i;
+    for (i = 0; i < parent->sub_categories->count; ++i) {
+        category_t* current = list_get(parent->sub_categories, i);
+        if (current != subcategory) continue;
+        list_remove(parent->sub_categories, i);
+        return;
+    }
+}
+
+void category_remove_account(category_t* parent, const char* path) {
+    int i, count;
+    char name[MAX_NAME_SIZE];
+    stream_t names = stream_from_path(path, &count);
+
+    category_t* current = parent;
+    for (i = 0; i < count - 1; ++i) {
+        stream_pop_string(&names, name);
+        category_t* next = category_find_category(name, current);
+        if (next) current = next;
+        else {
+            stream_free(&names);
+            return;
+        }
+    }
+
+    account_t* account;
+    stream_pop_string(&names, name);
+    for (i = 0; i < current->accounts->count; ++i) {
+        account = list_get(current->accounts, i);
+        if (strcmp(account->name, name) == 0) {
+            list_remove(current->accounts, i);
+            break;
+        }
+    }
+
+    while(current->accounts->count == 0 && current->sub_categories->count == 0) {
+        category_t* old = current;
+        current = current->parent;
+        category_remove_subcategory(current, old);
+    }
+
+    stream_free(&names);
 }
 
 void category_add_subcategory(category_t* category, category_t* subcategory) {
+    subcategory->parent = category;
     list_append(category->sub_categories, subcategory);
 }
 

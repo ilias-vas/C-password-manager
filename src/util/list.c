@@ -35,7 +35,7 @@ void list_append(list_t* list, void* data) {
 void list_remove(list_t* list, int i) {
     if (i < 0 || i >= list->count) return;
     if (list->count > 1)
-        memmove(list->data[i], list->data[i + 1], list->count - i);
+        memmove(list->data + i, list->data + i + 1, list->count - i);
     --list->count;
 }
 

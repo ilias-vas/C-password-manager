@@ -136,8 +136,11 @@ category_t* stream_pop_category(stream_t* stream) {
         list_append(category->accounts, stream_pop_account(stream));
     }
 
-    for (i = *(int*) stream_pop(stream, sizeof(int)); i > 0; --i)
-        list_append(category->sub_categories, stream_pop_category(stream));
+    for (i = *(int*) stream_pop(stream, sizeof(int)); i > 0; --i){
+        category_t* sub_category = stream_pop_category(stream);
+        sub_category->parent = category;
+        list_append(category->sub_categories, sub_category);
+    }
 
     return category;
 }

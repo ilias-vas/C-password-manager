@@ -130,7 +130,21 @@ void change_account_password_callback(application_context_t* context) {
 }
 
 void remove_account_callback(application_context_t* context) {
-    
+    puts(PMAN "Remove Account");
+    char path[MAX_PATH_SIZE];
+
+    category_print(context->vault->root);
+    puts("Enter account path. eg accountName or categoryName/subcategoryName/accountName");
+    PROMPT_USER( "> ", "", get_string(path));
+
+    account_t* account = category_find_account(path, context->vault->root); 
+    if (!account) {
+        puts(RED("Account does not exist"));
+        return;
+    }
+
+    category_remove_account(context->vault->root, path);
+    puts(GREEN("Account removed successfully"));
 }
 
 void show_password_callback(application_context_t* context) {
